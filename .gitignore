@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+dist/
+build/
+.next/
+out/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Hardhat
+contracts/artifacts/
+contracts/cache/
+contracts/typechain-types/
+contracts/ignition/deployments/
+
+# IDE & System
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+
+# Artifacts
+google_deepmind_artifacts/
+brain/
