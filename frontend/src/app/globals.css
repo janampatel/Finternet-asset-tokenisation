@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-glass: rgba(255, 255, 255, 0.05);
+  --color-glass-hover: rgba(255, 255, 255, 0.1);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-neon-blue: #00f3ff;
+  --color-neon-purple: #bc13fe;
+  --color-neon-green: #0aff99;
+  --color-neon-red: #ff0a54;
+  --color-primary-dark: #0f172a;
+}
+
+@utility glass {
+  background: var(--color-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+@utility glass-hover {
+  @apply transition-colors duration-200;
+
+  &:hover {
+    background: var(--color-glass-hover);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+:root {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Subtle gradient background */
+  background-image:
+    radial-gradient(at 0% 0%, rgba(188, 19, 254, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(0, 243, 255, 0.15) 0px, transparent 50%);
+}
