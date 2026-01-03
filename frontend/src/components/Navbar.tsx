@@ -1,8 +1,7 @@
 "use client";
 
-import { Wallet, Menu } from "lucide-react";
+import { Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
 
 interface NavbarProps {
     account: string | null;

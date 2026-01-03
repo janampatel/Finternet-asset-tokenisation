@@ -9,6 +9,14 @@ import { AssetDetailModal } from "@/components/AssetDetailModal";
 import { useAssetRegistry } from "@/hooks/useAssetRegistry";
 import { useBackend } from "@/hooks/useBackend";
 
+interface Asset {
+  id: number | string;
+  dataHash: string;
+  assetType: number;
+  status: number;
+  owner: string;
+}
+
 export default function Home() {
   const { account, connectWallet, registerAsset, tokenizeAsset, redeemAsset, isPending: isTxPending } = useAssetRegistry();
   const { assets, isLoading, verifyAsset, freezeAsset } = useBackend();
@@ -16,16 +24,11 @@ export default function Home() {
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const selectedAsset = assets.find((a: any) => a.id.toString() === selectedAssetId) || null;
+  const selectedAsset = assets.find((a: Asset) => a.id.toString() === selectedAssetId) || null;
 
   const handleAssetClick = (id: string) => {
     setSelectedAssetId(id);
     setIsModalOpen(true);
-  };
-
-  const handleRegulatorSelect = (id: string) => {
-    setSelectedAssetId(id);
-    // Don't open modal, just selecting for panel
   };
 
   return (
@@ -57,7 +60,7 @@ export default function Home() {
               {isLoading ? (
                 <div className="col-span-full text-center py-20 text-slate-500">Loading assets...</div>
               ) : (
-                assets.map((asset: any) => (
+                assets.map((asset: Asset) => (
                   <AssetCard
                     key={asset.id}
                     asset={asset}

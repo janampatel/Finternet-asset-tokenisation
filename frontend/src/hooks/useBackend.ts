@@ -34,11 +34,6 @@ export function useBackend() {
         }
     };
 
-    const registerDraft = async (assetType: string, metadataHash: string) => {
-        // Optional: Save draft to backend if needed, or just rely on contract sync
-        // For now, we rely on contract sync
-    };
-
     return {
         assets: assets || [],
         isLoading: !assets && !error,

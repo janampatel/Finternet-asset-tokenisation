@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/Button";
 import { Shield, Loader2, Play } from "lucide-react";
 
 interface RegulatorPanelProps {
-    onVerify: (pk: string) => Promise<any>;
-    onFreeze: (pk: string) => Promise<any>;
+    onVerify: (pk: string) => Promise<void>;
+    onFreeze: (pk: string) => Promise<void>;
     selectedAssetId: string | null;
     assetStatus: number | undefined;
 }

@@ -16,8 +16,8 @@ interface AssetDetailModalProps {
     asset: Asset | null;
     currentAccount: string | null;
     onClose: () => void;
-    onTokenize: (id: bigint) => Promise<any>;
-    onRedeem: (id: bigint) => Promise<any>;
+    onTokenize: (id: bigint) => Promise<void>;
+    onRedeem: (id: bigint) => Promise<void>;
 }
 
 export function AssetDetailModal({ asset, currentAccount, onClose, onTokenize, onRedeem }: AssetDetailModalProps) {

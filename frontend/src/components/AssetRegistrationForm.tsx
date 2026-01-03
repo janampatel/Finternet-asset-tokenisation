@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Loader2, Plus } from "lucide-react";
 
 interface AssetRegistrationFormProps {
-    onRegister: (hash: string, type: number) => Promise<any>;
+    onRegister: (hash: string, type: number) => Promise<void>;
     isPending: boolean;
 }
 

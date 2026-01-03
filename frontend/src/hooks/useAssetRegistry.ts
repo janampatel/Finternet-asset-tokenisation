@@ -4,14 +4,24 @@ import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/config/contracts';
 
+interface EthereumProvider {
+    request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+    send: (method: string, params: unknown[]) => Promise<unknown>;
+}
+
+declare global {
+    interface Window {
+        ethereum?: EthereumProvider;
+    }
+}
+
 export function useAssetRegistry() {
     const [account, setAccount] = useState<string | null>(null);
     const [contract, setContract] = useState<ethers.Contract | null>(null);
-    const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
     const [isPending, setIsPending] = useState(false);
 
     const connectWallet = useCallback(async () => {
-        const ethereum = (window as any).ethereum;
+        const ethereum = window.ethereum;
         if (typeof ethereum !== 'undefined') {
             try {
                 const browserProvider = new ethers.BrowserProvider(ethereum);
@@ -19,7 +29,6 @@ export function useAssetRegistry() {
                 const signer = await browserProvider.getSigner();
                 const registryContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-                setProvider(browserProvider);
                 setAccount(accounts[0]);
                 setContract(registryContract);
                 return accounts[0];
@@ -35,11 +44,11 @@ export function useAssetRegistry() {
 
     // Re-connect on load if already authorized
     useEffect(() => {
-        const ethereum = (window as any).ethereum;
+        const ethereum = window.ethereum;
         if (typeof ethereum !== 'undefined') {
             ethereum.request({ method: 'eth_accounts' })
-                .then((accounts: string[]) => {
-                    if (accounts.length > 0) {
+                .then((accounts) => {
+                    if ((accounts as string[]).length > 0) {
                         connectWallet();
                     }
                 });
