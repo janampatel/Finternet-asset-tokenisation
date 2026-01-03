@@ -23,11 +23,11 @@ Finternet is a full-stack decentralized application (dApp) that manages the comp
 ```mermaid
 graph TD
     User[User / Wallet] -->|Interacts| Frontend[Next.js Frontend]
-    Frontend -->|Reads/Writes| Contract[AssetLifecycleRegistry (Hardhat)]
+    Frontend -->|Reads/Writes| Contract[AssetLifecycleRegistry]
     Frontend -->|Reads| BackendAPI[Node.js Backend API]
     
     Contract -->|Emits Events| Syncer[Event Listener Service]
-    Syncer -->|Updates| DB[(SQLite Database)]
+    Syncer -->|Updates| DB[SQLite Database]
     BackendAPI -->|Queries| DB
     
     Regulator[Regulator Persona] -->|Signs Txs| BackendAPI
