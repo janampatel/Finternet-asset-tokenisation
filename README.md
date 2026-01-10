@@ -5,7 +5,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-14-black)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-Glassmorphism-38bdf8)
 ![Solidity](https://img.shields.io/badge/Solidity-^0.8.28-363636)
-![Claude AI](https://img.shields.io/badge/Claude_AI-Risk_Analysis-orange)
+![Groq](https://img.shields.io/badge/Groq-Free_LLaMA_2-10a37f)
 
 > **The Future of Finance**: A Real-World Asset (RWA) Tokenization Dashboard bridging the gap between Issuers, Regulators, and Investors. Now with AI-powered risk assessment.
 
@@ -16,7 +16,7 @@ Finternet is a full-stack decentralized application (dApp) that manages the comp
 **Key Features:**
 - **Asset Registration**: Issuers can mint real-world assets (Real Estate, Art, Bonds) as unique on-chain records.
 - **Compliance Engine**: A simulated Regulator persona can "Verify" or "Freeze" assets, enforcing regulatory standards.
-- **🤖 AI Risk Assessment**: Claude AI analyzes assets during verification, providing risk scores and recommendations.
+- **🤖 AI Risk Assessment**: Groq (Free LLaMA 2) analyzes assets during verification, providing risk scores and recommendations.
 - **Lifecycle Management**: Tokenization and Redemption flows gated by strict smart contract state machines.
 - **Real-Time Sync**: A Node.js backend listens to blockchain events to maintain a high-performance off-chain index.
 
@@ -59,7 +59,7 @@ graph TD
 - **Blockchain**: Hardhat, Solidity, Ethers.js v6
 - **Frontend**: Next.js 14 (App Router), Tailwind CSS (Glassmorphism), SWR
 - **Backend**: Node.js, Express, SQLite
-- **AI**: Claude API (Anthropic) - Optional
+- **AI**: Groq (Free Open-Source LLaMA 2) - No cost, completely free
 - **DevOps**: GitHub Actions, Monorepo structure
 
 ## ⚡ Quick Start
@@ -68,7 +68,7 @@ graph TD
 - Node.js v18+
 - MetaMask (Browser Extension)
 - Git
-- Claude API key (optional, for AI features)
+- Groq API key (free, get at https://console.groq.com)
 
 ### Installation
 
@@ -86,11 +86,13 @@ graph TD
     cd ../frontend && npm install
     ```
 
-3.  **(Optional) Set Up Claude AI**
+3.  **Set Up Groq (Free Open-Source AI)**
     ```bash
     cd backend
-    echo "ANTHROPIC_API_KEY=your_api_key_here" > .env.local
-    # Get key from: https://console.anthropic.com/
+    echo "GROQ_API_KEY=your_free_api_key" >> .env
+    # Get free key: https://console.groq.com (no payment needed)
+    cd ../frontend
+    echo "NEXT_PUBLIC_API_URL=http://localhost:5000" > .env.local
     ```
 
 4.  **Start the Blockchain (Terminal 1)**
@@ -109,7 +111,7 @@ graph TD
     ```bash
     cd backend
     npm start
-    # Shows: "✓ AI features enabled" if ANTHROPIC_API_KEY is set
+    # Shows: "✓ AI features enabled" if GROQ_API_KEY is set
     ```
 
 7.  **Start Frontend Dashboard (Terminal 4)**
