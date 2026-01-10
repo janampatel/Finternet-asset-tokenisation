@@ -1,14 +1,15 @@
 "use client";
 
-import { Wallet } from "lucide-react";
+import { Wallet, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 interface NavbarProps {
     account: string | null;
     onConnect: () => void;
+    onDisconnect: () => void;
 }
 
-export function Navbar({ account, onConnect }: NavbarProps) {
+export function Navbar({ account, onConnect, onDisconnect }: NavbarProps) {
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-[var(--color-glass-border)]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,9 +25,20 @@ export function Navbar({ account, onConnect }: NavbarProps) {
                     {/* Connect Wallet */}
                     <div className="flex items-center gap-4">
                         {account ? (
-                            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-800 text-sm text-slate-300">
-                                <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]" />
-                                {account.slice(0, 6)}...{account.slice(-4)}
+                            <div className="flex items-center gap-3">
+                                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-800 text-sm text-slate-300">
+                                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]" />
+                                    {account.slice(0, 6)}...{account.slice(-4)}
+                                </div>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={onDisconnect}
+                                    className="gap-2 text-slate-400 hover:text-slate-200"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    Disconnect
+                                </Button>
                             </div>
                         ) : (
                             <Button variant="neon" size="sm" onClick={onConnect} className="gap-2">

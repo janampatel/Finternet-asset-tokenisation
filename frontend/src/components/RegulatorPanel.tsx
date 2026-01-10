@@ -1,19 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import { Shield, Loader2, Play } from "lucide-react";
+import { Shield, Loader2, Play, Zap, AlertCircle } from "lucide-react";
+import { useAiServices, type RiskAssessment } from "@/hooks/useAiServices";
 
 interface RegulatorPanelProps {
     onVerify: (pk: string) => Promise<void>;
     onFreeze: (pk: string) => Promise<void>;
     selectedAssetId: string | null;
     assetStatus: number | undefined;
+    assetType?: number;
 }
 
-export function RegulatorPanel({ onVerify, onFreeze, selectedAssetId, assetStatus }: RegulatorPanelProps) {
+export function RegulatorPanel({ onVerify, onFreeze, selectedAssetId, assetStatus, assetType }: RegulatorPanelProps) {
     const [privateKey, setPrivateKey] = useState("");
     const [isProcessing, setIsProcessing] = useState(false);
+    const [riskAssessment, setRiskAssessment] = useState<RiskAssessment | null>(null);
+    const [showRiskAnalysis, setShowRiskAnalysis] = useState(false);
+    const { assessRisk, loading: aiLoading } = useAiServices();
+
+    // Fetch risk assessment when asset is selected
+    useEffect(() => {
+        if (selectedAssetId && assetStatus === 0) {
+            loadRiskAssessment();
+        }
+    }, [selectedAssetId]);
+
+    const loadRiskAssessment = async () => {
+        const assetTypeNames = ["Real Estate", "Bond", "Art"];
+        const typeName = assetType !== undefined ? assetTypeNames[assetType] || "Asset" : "Asset";
+        const assessment = await assessRisk(typeName, { assetId: selectedAssetId });
+        setRiskAssessment(assessment);
+    };
 
     const handleAction = async (action: 'verify' | 'freeze') => {
         if (!privateKey) return alert("Please enter Regulator Private Key");
@@ -47,6 +66,16 @@ export function RegulatorPanel({ onVerify, onFreeze, selectedAssetId, assetStatu
     const canVerify = assetStatus === 0;
     const canFreeze = assetStatus === 3;
 
+    const getRiskColor = (level: string) => {
+        switch(level) {
+            case 'LOW': return 'text-green-400 bg-green-900/20';
+            case 'MEDIUM': return 'text-yellow-400 bg-yellow-900/20';
+            case 'HIGH': return 'text-orange-400 bg-orange-900/20';
+            case 'CRITICAL': return 'text-red-400 bg-red-900/20';
+            default: return 'text-slate-400 bg-slate-900/20';
+        }
+    };
+
     return (
         <div className="glass p-6 rounded-xl h-full border-l border-[var(--color-glass-border)] flex flex-col gap-6">
             <div className="flex items-center gap-2 text-white">
@@ -57,6 +86,41 @@ export function RegulatorPanel({ onVerify, onFreeze, selectedAssetId, assetStatu
             <div className="text-xs text-slate-400 bg-slate-900/50 p-3 rounded-lg border border-slate-800">
                 Target Asset: <span className="font-mono text-white ml-2">{selectedAssetId}</span>
             </div>
+
+            {/* AI Risk Assessment */}
+            {canVerify && (
+                <div className="border border-slate-700 rounded-lg p-4 bg-slate-900/30">
+                    <button
+                        onClick={() => setShowRiskAnalysis(!showRiskAnalysis)}
+                        className="w-full flex items-center justify-between text-sm font-medium text-slate-300 hover:text-slate-100"
+                    >
+                        <div className="flex items-center gap-2">
+                            <Zap className="w-4 h-4 text-amber-400" />
+                            AI Risk Analysis
+                        </div>
+                        {aiLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                    </button>
+                    
+                    {showRiskAnalysis && riskAssessment && (
+                        <div className="mt-3 space-y-2 text-xs">
+                            <div className={`inline-block px-2 py-1 rounded ${getRiskColor(riskAssessment.riskLevel)}`}>
+                                {riskAssessment.riskLevel} RISK ({riskAssessment.riskScore}/100)
+                            </div>
+                            <p className="text-slate-400">{riskAssessment.analysis}</p>
+                            {riskAssessment.recommendations && riskAssessment.recommendations.length > 0 && (
+                                <div>
+                                    <p className="text-slate-500 font-medium mt-2">Recommendations:</p>
+                                    <ul className="list-disc list-inside text-slate-400 space-y-1">
+                                        {riskAssessment.recommendations.slice(0, 3).map((rec, i) => (
+                                            <li key={i}>{rec}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
 
             <div className="space-y-4">
                 <div>

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/config/contracts';
+import { CONTRACT_ABI } from '@/config/contracts';
+import { useContractAddress } from './useContractAddress';
 
 interface EthereumProvider {
     request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
@@ -16,9 +17,16 @@ declare global {
 }
 
 export function useAssetRegistry() {
+    const { address: CONTRACT_ADDRESS, loading: addressLoading } = useContractAddress();
     const [account, setAccount] = useState<string | null>(null);
     const [contract, setContract] = useState<ethers.Contract | null>(null);
     const [isPending, setIsPending] = useState(false);
+    const [isManuallyDisconnected, setIsManuallyDisconnected] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('manuallyDisconnected') === 'true';
+        }
+        return false;
+    });
 
     const connectWallet = useCallback(async () => {
         const ethereum = window.ethereum;
@@ -31,6 +39,8 @@ export function useAssetRegistry() {
 
                 setAccount(accounts[0]);
                 setContract(registryContract);
+                setIsManuallyDisconnected(false);
+                localStorage.removeItem('manuallyDisconnected');
                 return accounts[0];
             } catch (error) {
                 console.error("Failed to connect wallet:", error);
@@ -42,10 +52,30 @@ export function useAssetRegistry() {
         }
     }, []);
 
-    // Re-connect on load if already authorized
+    const disconnectWallet = useCallback(async () => {
+        setAccount(null);
+        setContract(null);
+        setIsManuallyDisconnected(true);
+        localStorage.setItem('manuallyDisconnected', 'true');
+
+        // Revoke MetaMask permissions
+        const ethereum = window.ethereum;
+        if (ethereum && typeof ethereum !== 'undefined') {
+            try {
+                await ethereum.request({
+                    method: 'wallet_revokePermissions',
+                    params: [{ eth_accounts: {} }]
+                });
+            } catch (error) {
+                console.log('Permission revocation not supported or failed:', error);
+            }
+        }
+    }, []);
+
+    // Re-connect on load if already authorized AND not manually disconnected
     useEffect(() => {
         const ethereum = window.ethereum;
-        if (typeof ethereum !== 'undefined') {
+        if (typeof ethereum !== 'undefined' && !isManuallyDisconnected) {
             ethereum.request({ method: 'eth_accounts' })
                 .then((accounts) => {
                     if ((accounts as string[]).length > 0) {
@@ -53,7 +83,7 @@ export function useAssetRegistry() {
                     }
                 });
         }
-    }, [connectWallet]);
+    }, [connectWallet, isManuallyDisconnected]);
 
     const registerAsset = async (metadataHash: string, assetType: number) => {
         if (!contract) throw new Error("Contract not initialized");
@@ -95,6 +125,7 @@ export function useAssetRegistry() {
         account,
         contract,
         connectWallet,
+        disconnectWallet,
         registerAsset,
         tokenizeAsset,
         redeemAsset,

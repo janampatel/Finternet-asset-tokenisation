@@ -21,8 +21,9 @@ async function main() {
     const tx = await registry.addIssuer(deployer.address);
     await tx.wait();
 
-    const address = await registry.getAddress();
+    const address = registry.target || registry.address;
     console.log(`AssetLifecycleRegistry deployed to: ${address}`);
+    console.log('Deployment successful!');
 
     // Save address to a file so backend can find it
     const backendConfigDir = path.resolve(__dirname, '../../backend');
