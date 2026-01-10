@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 const db = require('./database');
 const { getContractWithSigner, currentContract } = require('./provider');
 const { startSync } = require('./syncer');
@@ -9,6 +11,21 @@ const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Serve contract address to frontend
+app.get('/contract-address', (req, res) => {
+    try {
+        const addressFile = path.join(__dirname, 'contract-address.txt');
+        if (fs.existsSync(addressFile)) {
+            const address = fs.readFileSync(addressFile, 'utf8').trim();
+            res.json({ address });
+        } else {
+            res.status(404).json({ error: 'Contract address not found. Deploy contract first.' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // 1. POST /api/register (Metadata Only / Draft)
 // Requirements: "Save draft to DB with status 0".
@@ -91,9 +108,59 @@ app.post('/api/freeze', async (req, res) => {
     }
 });
 
+// AI Features
+const aiService = require('./ai-service');
+
+// Generate enhanced asset description using AI
+app.post('/api/ai/generate-description', async (req, res) => {
+    try {
+        const { assetType, metadata } = req.body;
+        if (!assetType || !metadata) {
+            return res.status(400).json({ error: 'assetType and metadata required' });
+        }
+        
+        const description = await aiService.generateAssetDescription(assetType, metadata);
+        res.json({ description: description || 'Unable to generate description' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Assess asset risk using AI
+app.post('/api/ai/assess-risk', async (req, res) => {
+    try {
+        const { assetType, metadata } = req.body;
+        if (!assetType) {
+            return res.status(400).json({ error: 'assetType required' });
+        }
+        
+        const riskAssessment = await aiService.assessAssetRisk(assetType, metadata || {});
+        res.json(riskAssessment);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Generate compliance checklist using AI
+app.get('/api/ai/compliance-checklist/:assetType', async (req, res) => {
+    try {
+        const { assetType } = req.params;
+        const checklist = await aiService.generateComplianceChecklist(assetType);
+        res.json({ checklist });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Start Server
 app.listen(PORT, () => {
     console.log(`Backend running on http://localhost:${PORT}`);
+    
+    if (process.env.ANTHROPIC_API_KEY) {
+        console.log('✓ AI features enabled (Claude API configured)');
+    } else {
+        console.log('⚠ AI features disabled (set ANTHROPIC_API_KEY to enable)');
+    }
 
     // Start Event Syncer
     startSync();

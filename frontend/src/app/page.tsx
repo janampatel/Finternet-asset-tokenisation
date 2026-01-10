@@ -18,7 +18,7 @@ interface Asset {
 }
 
 export default function Home() {
-  const { account, connectWallet, registerAsset, tokenizeAsset, redeemAsset, isPending: isTxPending } = useAssetRegistry();
+  const { account, connectWallet, disconnectWallet, registerAsset, tokenizeAsset, redeemAsset, isPending: isTxPending } = useAssetRegistry();
   const { assets, isLoading, verifyAsset, freezeAsset } = useBackend();
 
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen pt-24 px-4 pb-10">
-      <Navbar account={account} onConnect={connectWallet} />
+      <Navbar account={account} onConnect={connectWallet} onDisconnect={disconnectWallet} />
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
 
